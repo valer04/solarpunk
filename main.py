@@ -60,14 +60,14 @@ def informacion_juego():
 
 def obtener_seleccion():
     """
-    Funcion para selecciones con numeros
+    Función para selecciones con números
     """
-    selection = input('Introduce tu seleccion: ')
+    selection = input('Introduce tu selección: ')
     if selection.isdigit():
         return int(selection)
     else:
-        print('\nIntroduce un numero valido')
-        obtener_seleccion()
+        print('\nIntroduce un número válido')
+        return obtener_seleccion()
 
 
 tablero = [1]
@@ -75,45 +75,103 @@ tablero = [1]
 
 def inicio_juego():
     """
-    inicia juego
+    Inicia el juego
     """
-    global tablero
-    # se definen columnas
+    # Se definen columnas
     print('Escribe la cantidad de columnas de tu tablero')
-
     num = obtener_seleccion()
 
     while not (3 <= num <= 9):
-        print('Debe ser un numero entre 3 y 9')
+        print('Debe ser un número entre 3 y 9')
         num = obtener_seleccion()
 
-    else:
-        columnas = num * tablero
+    columnas = [1] * num  # Inicializa una fila con el número correcto de columnas
 
-        # se aniaden las filas a la cuadrircular
-        print('Escribe la cantidad de filas de tu tablero')
+    # Se añaden las filas a la cuadrícula
+    print('Escribe la cantidad de filas de tu tablero')
+    num = obtener_seleccion()
+
+    while not (3 <= num <= 9):
+        print('Debe ser un número entre 3 y 9')
         num = obtener_seleccion()
-        filas = num * [columnas]
-        return dia(filas)
+    filas = [columnas[:] for _ in range(num)]  # Crea una matriz de filas y columnas
+
+    return dia(filas)
+
 
 
 def dia(ciudad):
-    for casilla in ciudad:
-        print(casilla, end=' ')
-        print()
+    global tablero
+    tablero = ciudad
+    for fila in tablero:
+        print(fila)
+    print('Que deseas hacer?\n'
+          '1. Proyecto\n'
+          '2. Iniciativa\n'
+          '3. Cultura\n')
+    seleccion = obtener_seleccion()
+    if seleccion == 1:
+        proyecto(tablero)
+    elif seleccion == 2:
+        iniciativa()
+    elif seleccion == 3:
+        cultura()
+    else:
+        print('Seleccion invalida')
+        dia(tablero)
 
-    print('Donde deseas realizar un proyecto?')
+
+def proyecto(ciudad):
+    global tablero
+    tablero = ciudad
+    print('¿Dónde deseas realizar un proyecto? (Escribe 00 para devolverte)')
     x = obtener_seleccion()
     y = obtener_seleccion()
-    if not -1 < x < len(ciudad[0])-1:
-        print('Debe ser un valor dentro de los parametos de la matriz.')
-    elif not -1 < y < len(ciudad)-1:
-        print('Debe ser un valor dentro de los parametos de la matriz.')
+
+    # Validación de índices
+    if not 0 <= x < len(ciudad[0]):
+        print('Debe ser un valor dentro de los parámetros de la matriz.')
+        proyecto(tablero)
+    elif not 0 <= y < len(ciudad):
+        print('Debe ser un valor dentro de los parámetros de la matriz.')
+        proyecto(tablero)
+    elif ciudad[y][x] == 0:
+        print('Esta casilla ha sido usurpada')
+        proyecto(tablero)
+    elif x == 0 and y == 0:
+        dia(tablero)
     else:
-        ciudad[x][y] = 2
-        for casilla in ciudad:
-            print(casilla, end=' ')
-            print()
+        # Modifica solo el valor específico
+        tablero[y][x] = 2  # Usamos y para las filas y x para las columnas
+        for fila in tablero:
+            print(fila)
+    return noche(tablero)
+
+
+def iniciativa():
+    print('WIP')
+    dia(tablero)
+
+
+def cultura():
+    print('WIP')
+    dia(tablero)
+
+
+def noche(ciudad):
+    global tablero
+    print('Empieza la noche')
+    for i in range(len(ciudad)):
+        for j in range(len(ciudad[i])):
+            if random.random() < 0.1:  # 10% de probabilidad de ser usurpado
+                ciudad[i][j] = 0
+    tablero = ciudad
+    for fila in tablero:
+        print(fila)
+    print('La noche ha pasado')
+
+    return dia(tablero)
+
 
 def main():
     """
