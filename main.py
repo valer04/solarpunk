@@ -70,7 +70,58 @@ def obtener_seleccion():
         return obtener_seleccion()
 
 
-tablero = [1]
+tablero = [' ']
+
+
+def win(persona):
+    """
+    Verifica si el jugador ha ganado.
+    """
+    # Verifica filas
+    for fila in persona:
+        if all(celda == 'P' for celda in fila):
+            print("¡Has ganado!")
+            return menu()
+
+    # Verifica columnas
+    for col in range(len(persona[0])):
+        if all(fila[col] == 'P' for fila in persona):
+            print("¡Has ganado!")
+            return menu()
+
+    # Si no se ha encontrado una fila o columna completa de 'P', el juego continúa.
+    print("El juego continúa.")
+
+
+def lose(signalis):
+    """
+    Verifica si el jugador ha perdido.
+    """
+    # Verifica filas
+    for fila in signalis:
+        if all(celda == 'X' for celda in fila):
+            print("¡Has perdido! Los usurpadores separaron la ciudad.")
+            return menu()
+
+    # Verifica columnas
+    for col in range(len(signalis[0])):
+        if all(fila[col] == 'X' for fila in signalis):
+            print("¡Has perdido! Los usurpadores separaron la ciudad.")
+            return menu()
+
+
+flag = False
+
+
+def pipipi(pi):
+    global flag
+    while flag:
+        for i in range(len(pi)):
+            for j in range(len(pi[i])):
+                if pi[i][j] == 'I':
+                    pi[i][j] = 'P'
+        flag = False
+        dia(pi)
 
 
 def inicio_juego():
@@ -85,7 +136,7 @@ def inicio_juego():
         print('Debe ser un número entre 3 y 9')
         num = obtener_seleccion()
 
-    columnas = [1] * num  # Inicializa una fila con el número correcto de columnas
+    columnas = [' '] * num  # Inicializa una fila con el número correcto de columnas
 
     # Se añaden las filas a la cuadrícula
     print('Escribe la cantidad de filas de tu tablero')
@@ -99,21 +150,22 @@ def inicio_juego():
     return dia(filas)
 
 
-
 def dia(ciudad):
     global tablero
     tablero = ciudad
+    pipipi(tablero)
     for fila in tablero:
-        print(fila)
+        print(("[{0}]".format(', '.join(map(str, fila)))))
+    win(tablero)
     print('Que deseas hacer?\n'
           '1. Proyecto\n'
           '2. Iniciativa\n'
           '3. Cultura\n')
     seleccion = obtener_seleccion()
     if seleccion == 1:
-        proyecto(tablero)
+        iniciativa(tablero)
     elif seleccion == 2:
-        iniciativa()
+        proyecto()
     elif seleccion == 3:
         cultura()
     else:
@@ -121,8 +173,8 @@ def dia(ciudad):
         dia(tablero)
 
 
-def proyecto(ciudad):
-    global tablero
+def iniciativa(ciudad):
+    global tablero, flag
     tablero = ciudad
     print('¿Dónde deseas realizar un proyecto? (Escribe 00 para devolverte)')
     x = obtener_seleccion()
@@ -131,24 +183,25 @@ def proyecto(ciudad):
     # Validación de índices
     if not 0 <= x < len(ciudad[0]):
         print('Debe ser un valor dentro de los parámetros de la matriz.')
-        proyecto(tablero)
-    elif not 0 <= y < len(ciudad):
+        iniciativa(tablero)
+    elif not 0 <= y <= len(ciudad):
         print('Debe ser un valor dentro de los parámetros de la matriz.')
-        proyecto(tablero)
+        iniciativa(tablero)
     elif ciudad[y][x] == 0:
         print('Esta casilla ha sido usurpada')
-        proyecto(tablero)
-    elif x == 0 and y == 0:
+        iniciativa(tablero)
+    elif x == 9 and y == 9:
         dia(tablero)
     else:
         # Modifica solo el valor específico
-        tablero[y][x] = 2  # Usamos y para las filas y x para las columnas
+        tablero[y][x] = 'I'  # Usamos y para las filas y x para las columnas
         for fila in tablero:
-            print(fila)
+            print(("[{0}]".format(', '.join(map(str, fila)))))
+            flag = True
     return noche(tablero)
 
 
-def iniciativa():
+def proyecto():
     print('WIP')
     dia(tablero)
 
@@ -164,11 +217,16 @@ def noche(ciudad):
     for i in range(len(ciudad)):
         for j in range(len(ciudad[i])):
             if random.random() < 0.1:  # 10% de probabilidad de ser usurpado
-                ciudad[i][j] = 0
+                if ciudad[i][j] == 'I':
+                    ciudad[i][j] = 'I'
+                else:
+                    ciudad[i][j] = 'X'
+
     tablero = ciudad
     for fila in tablero:
-        print(fila)
+        print(("[{0}]".format(', '.join(map(str, fila)))))
     print('La noche ha pasado')
+    lose(tablero)
 
     return dia(tablero)
 
